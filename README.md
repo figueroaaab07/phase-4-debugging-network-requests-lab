@@ -63,11 +63,51 @@ developing your own process.
 - Add a new toy when the toy form is submitted
 
   - How I debugged:
+    Rails Server Log:
+    Started POST "/toys" for 127.0.0.1 at 2022-08-26 18:31:04 -0700
+    Processing by ToysController#create as */*
+    Parameters: {"name"=>"Care Bears", "image"=>"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLjWYTXQ1KHydqQ4hiWoRUONeAvBv-P1jp2Q&usqp=CAU", "likes"=>0}
+    Completed 500 Internal Server Error in 1ms (ActiveRecord: 0.0ms | Allocations: 1611)
+  
+    NameError (uninitialized constant ToysController::Toys):
+  
+    app/controllers/toys_controller.rb:10:in `create'
+
+    We are using a constant Toys incorrectly, in 'create' line 10. I changed Toys by Toy.
+
 
 - Update the number of likes for a toy
 
   - How I debugged:
 
+    Developer Tools Console:
+    Uncaught (in promise) SyntaxError: Unexpected end of JSON input at ToyCard.js:21:1
+
+    fetch(`/toys/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateObj),
+    })
+    .then((r) => r.json())
+    .then((updatedToy) => onUpdateToy(updatedToy));
+
+    We expect the server to return a string of JSON-formatted data, but the server is not returning any content.
+
+    I added in the update controller action:
+    render json: toy
+
 - Donate a toy to Goodwill (and delete it from our database)
 
   - How I debugged:
+
+    Developer Tools Network Preview:
+    error: "Not Found"
+    exception: "#<ActionController::RoutingError: No route matches [DELETE] \"/toys/6\">"
+    status: 404
+
+    Rails Server Log:
+    ActionController::RoutingError (No route matches [DELETE] "/toys/6"):
+
+    I added a :destroy route (routes.rb) to handle the HTTP Verb + Path for this request
